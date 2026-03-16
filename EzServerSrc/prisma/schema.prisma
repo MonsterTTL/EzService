@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//用户角色类型枚举
+enum Role {
+  USER // 用户
+  ADMIN // 管理员
+}
+
+enum OrderStatus {
+  PENDING //待支付
+  PAID //已付款
+  SHIPPED //已发货
+  COMPLETED //已完成
+  CANCELLED //已取消
+}
+
+//用户信息表
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  passwordHash  String  
+  name          String  
+  role          Role      @default(USER) 
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+
+  cart          Cart?
+  orders        Order[]
+}
+
+//购物车
+model Cart {
+  id      Int       @id @default(autoincrement())
+  userId Int        @unique
+  user   User       @relation(fields: [userId], references: [id])
+  items  CartItem[]
+}
+
+//购物车项
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int
+
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+//订单
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  address     String
+  createdAt   DateTime    @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  item        OrderItem[]
+}
+
+model OrderItem {
+  id             Int     @id @default(autoincrement())
+  orderId        Int
+  productId      Int
+  quantity       Int
+  priceSnapshot  Decimal @db.Decimal(10, 2)
+
+  order          Order   @relation(fields: [orderId], references: [id])
+  product        Product @relation(fields: [productId], references: [id])
+}
+
+model Category {
+  id        Int         @id @default(autoincrement())
+  name      String
+  parentId  Int?
+
+  parent    Category?   @relation("CategoryTree", fields: [parentId], references: [id])
+  chiildren Category[]  @relation("CategoryTree")
+  products  Product[]
+}
+
+//商品
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  price       Decimal   @db.Decimal(10,2)
+  stock       Int       @default(0)
+  categoryId  Int
+  imageUrls   String[]
+  createdAt   DateTime  @default(now())
+
+  category Category @relation(fields: [categoryId], references: [id])
+  cartItems CartItem[]
+  orderItem OrderItem[]
+}
+

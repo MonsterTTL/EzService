@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+uploads/
+*.js.map
+
+/src/generated/prisma
