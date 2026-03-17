@@ -157,4 +157,14 @@
 
 ---
 
-*最后更新：Phase 4 进行中 — 已理解 Controller-Service-Repository 架构、Zod 校验、Request 参数区别等概念*
+## 📎 附录文档
+
+| 文档 | 说明 |
+|------|------|
+| [数据库基础](./appendix-database-basics.md) | 关系型数据库核心概念 |
+| [URL 编码](./appendix-url-encode.md) | URL 编码原理详解 |
+| [Prisma CRUD 语法速查](./appendix-prisma-crud.md) | Prisma Client 完整操作指南 |
+
+---
+
+*最后更新：Phase 4 进行中 — 已补充 Prisma CRUD 语法附录*
