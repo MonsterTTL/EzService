@@ -4,7 +4,8 @@ import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { uploadImages } from '../middlewares/upload.middleware';
 import { createProductSchema, productQuerySchema, updateProductSchema } from '../types/product.schemas';
-import router from './auth.routes';
+
+const router = Router()
 
 router.get('/', validate(productQuerySchema, 'query'), productController.getProducts);
 router.get('/:id', productController.getProductById);
@@ -24,7 +25,7 @@ router.post(
 );
 //更新商品
 router.put(
-    '/',
+    '/:id',
     authenticate,
     authorize('ADMIN'),
     uploadImages,
@@ -34,8 +35,10 @@ router.put(
 
 //删除商品
 router.delete(
-    '/',
+    '/:id',
     authenticate,
     authorize('ADMIN'),
     productController.deleteProduct
 );
+
+export default router;

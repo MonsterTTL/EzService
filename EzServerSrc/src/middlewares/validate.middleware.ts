@@ -21,7 +21,16 @@ export function validate(
             });
         }
         //如果验证成功就把转换后的数据放到data字段里
-        req[target] = result.data;
+        if (target === 'query') {
+            Object.defineProperty(req, 'query', {
+                value: result.data,
+                writable: true,
+                configurable: true
+            });
+        } else {
+            req[target] = result.data;
+        }
+        
         next();
     }
 }

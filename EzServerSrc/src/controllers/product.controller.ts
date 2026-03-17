@@ -41,7 +41,7 @@ export const productController = {
     async updateProduct(req: Request, res: Response, next: NextFunction) {
         try {
             const files = req.files as Express.Multer.File[];
-            const newImageUrls = files.map(f => `/uploads/${f.filename}`);
+            const newImageUrls = files?.map(f => `/uploads/${f.filename}`);
 
             const product = await productService.updateProduct(
                 parseInt(req.params.id as string),

@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { userRepository } from '../repositories/user.repository';
 import { signToken } from '../utils/jwt';
 import { AppError } from '../utils/AppError';
-import { register } from 'node:module';
 
 export const authService = {
     //注册

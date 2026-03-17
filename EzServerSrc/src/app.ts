@@ -1,8 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
+import path from 'path';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
+import productRouter from './routes/product.routes';
 import { errorHandler } from './middlewares/error.middleware';
 
 //环境初始化
@@ -19,7 +21,9 @@ app.use(cors());
 app.use(express.json());
 
 //路由
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/api/auth', authRoutes);
+app.use('/api/products', productRouter);
 
 //检查服务健康度
 app.get('/health', (req: Request, res: Response) => {

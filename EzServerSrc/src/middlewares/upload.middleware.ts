@@ -23,7 +23,7 @@ const storage = multer.diskStorage({
 
 // 只允许筛选图片
 const fileFilter = (req: any, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/webp'];
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/webp', 'image/png'];
 
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);

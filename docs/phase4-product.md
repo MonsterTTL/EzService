@@ -97,12 +97,15 @@ npm install -D @types/multer
 import { z } from 'zod';
 
 // 创建商品的请求体 Schema
+// ⚠️ 注意：创建商品使用 multipart/form-data 格式，所有字段值传输时都是字符串
+// 所以 price、stock、categoryId 必须用 z.coerce.number() 而不是 z.number()
+// z.coerce 会先把字符串 "8999" 转换成数字 8999，再进行校验
 export const createProductSchema = z.object({
   name: z.string().min(1, '商品名不能为空').max(100, '商品名最多 100 字'),
   description: z.string().min(1, '请填写商品描述'),
-  price: z.number().positive('价格必须大于 0'),
-  stock: z.number().int('库存必须是整数').min(0, '库存不能为负数'),
-  categoryId: z.number().int().positive(),
+  price: z.coerce.number().positive('价格必须大于 0'),
+  stock: z.coerce.number().int('库存必须是整数').min(0, '库存不能为负数'),
+  categoryId: z.coerce.number().int().positive(),
 });
 
 // 更新商品：所有字段都是可选的
@@ -150,7 +153,17 @@ export function validate(schema: ZodSchema, target: 'body' | 'query' | 'params' 
     }
     
     // 把校验后的数据（已做类型转换和默认值填充）写回去
-    req[target] = result.data;
+    // ⚠️ 注意：req.query 在新版 Express/router 中是只读的 getter，不能直接赋值
+    // 必须用 Object.defineProperty 在实例层面重新定义该属性才能覆盖
+    if (target === 'query') {
+      Object.defineProperty(req, 'query', {
+        value: result.data,
+        writable: true,
+        configurable: true,
+      });
+    } else {
+      req[target] = result.data;
+    }
     next();
   };
 }
@@ -677,7 +690,6 @@ npx prisma studio
 ```
 POST http://localhost:3000/api/products
 Authorization: Bearer <admin_token>
-Content-Type: multipart/form-data
 
 name: iPhone 15 Pro
 description: 苹果最新旗舰
@@ -686,6 +698,13 @@ stock: 50
 categoryId: 1
 images: [上传一张图片文件]
 ```
+
+> ⚠️ **Postman 注意事项**：选择 Body → form-data 格式后，**不要**在 Headers 里手动设置 `Content-Type`。
+> Postman 会自动生成带 `boundary` 参数的完整 Content-Type 头（如 `multipart/form-data; boundary=----FormBoundaryXXX`）。
+> 如果手动填写了 `Content-Type: multipart/form-data`，Multer 会因为找不到 boundary 而报错：`Multipart: Boundary not found`。
+>
+> 另外，`categoryId` 填写的值必须是数据库 `Category` 表中真实存在的记录 ID，否则会报外键约束错误。
+> 可以先通过 `npx prisma studio` 在 Category 表中创建一条分类记录，再用其 id 创建商品。
 
 ### 查询商品列表（带分页和过滤）
 ```
