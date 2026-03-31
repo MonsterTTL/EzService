@@ -90,7 +90,32 @@ export const orderService = {
     },
 
     //流转订单状态
-    
+    async updateOrderStatus(
+        orderId: number, 
+        newStatus: OrderStatus, 
+        operateId: number, 
+        isAdmin: boolean
+    ) {
+        const order = await orderRepository.findById(orderId);
+
+        if (!order) {
+            throw new AppError('没有找到对应订单', 404, 'ORDER_NOT_FOUND');
+        }
+
+        if (!isAdmin && operateId !== order.userId) {
+            throw new AppError('无权操作该订单', 403, 'FORBIDDEN');
+        }
+
+        if (!canTransition(order.status, newStatus)) {
+            throw new AppError(
+                `订单状态不能从「${ORDER_STATUS_LABEL[order.status]}」变更为「${ORDER_STATUS_LABEL[newStatus]}」`,
+                400,
+                'INVALID_STATUS_TRANSITION'
+              );
+        }
+
+        return orderRepository.updateStatus(orderId, newStatus);
+    },
 
 
 

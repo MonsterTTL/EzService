@@ -97,7 +97,7 @@
 || `generator client` 的 `output` 选项陷阱 | ✅ 已理解 | 设置 `output` 会把 Client 生成到自定义路径，但 `import from '@prisma/client'` 找默认路径，导致 `did not initialize` 报错；`prisma-client-js` 不要设置 `output` |
 || `ts-node` 是什么 | ✅ 已理解 | 在内存里动态编译 TS 并直接运行，不生成 `.js` 文件；省去 `tsc → node` 两步；适合执行一次性脚本 |
 || `npx` 是什么 | ✅ 已理解 | 运行本地 `node_modules/.bin/` 里的命令，不需要全局安装 |
-|| Prisma Client 的 CRUD 操作 | 🔄 部分理解 | `create`、`findMany`、`findFirst`、`update`、`delete` 写过；`include`（带 JOIN）vs `select`（只查指定字段）理解了区别 |
+|| Prisma Client 的 CRUD 操作 | ✅ 已理解 | C=Create（插入）、R=Read（查询）、U=Update（更新）、D=Delete（删除）；`create`、`findMany`、`findFirst`、`update`、`delete` 均已掌握 |
 || imageUrls 存的是 HTTP URL，不是文件路径 | ✅ 已理解 | 客户端上传 → 服务端保存文件 → 生成可访问的 HTTP URL 存入数据库；Phase 4 实现文件上传 |
 
 ---
@@ -128,13 +128,52 @@
 
 ---
 
-## Phase 5-6 — 购物车 / 订单（未开始）
+## Phase 5 — 购物车模块（已完成）
 
 | 知识点 | 理解状态 | 备注 |
 |--------|--------|------|
-|| 数据库事务（Transaction）是什么，为什么需要 | ❓ 待深入 | |
-|| 库存并发问题（超卖）的解决思路 | ❓ 待深入 | |
-|| 订单状态机设计 | ❓ 待深入 | |
+|| 数据库事务（Transaction）是什么，为什么需要 | ✅ 已理解 | 一组操作要么全成功，要么全回滚；购物车与下单流程用 `$transaction` 保证原子性 |
+|| 库存并发问题（超卖）的解决思路 | ✅ 已理解 | 用带条件的 UPDATE（乐观锁）：`WHERE stock >= quantity`，通过影响行数是否为 0 判断是否扣减成功 |
+
+---
+
+## Phase 6 — 订单模块（进行中）
+
+| 知识点 | 理解状态 | 备注 |
+|--------|--------|------|
+|| 订单状态机设计 | ✅ 已理解 | 用 `Record<Status, Status[]>` 定义合法状态流转规则，`canTransition(from, to)` 函数校验 |
+|| 价格快照（priceSnapshot）的意义 | ✅ 已理解 | 下单时写入 `OrderItem.priceSnapshot`，与现价脱钩；与 Phase 2 表中「快照」条目同一概念 |
+|| 下单成功后清空购物车的业务原因 | ✅ 已理解 | 购物车表示未下单意向；订单生成后同一批商品不应再留在购物车，避免重复下单与状态歧义 |
+|| `order.create` 的 `data` 必填字段（如无 `@default` 的 `totalAmount`） | ✅ 已理解 | Prisma 类型会要求补全；金额需在事务内按购物车行累加后传入 |
+|| Prisma 关系字段名必须与 `schema` 一致 | ✅ 已理解 | 如 `Order` 上为 `item`（`OrderItem[]`），则 `include` / 嵌套 `create` 须写 `item`，不能写成 `items` |
+|| 嵌套写入 `item: { create: [...] }` 中 `create` 的含义 | ✅ 已理解 | 创建父记录时一并新建子表行并自动关联外键，不是数组的 `create` 方法 |
+|| `include` 不仅用于 `find`，也可用于 `create`/`update` 的返回形状 | ✅ 已理解 | 目的：返回体中带上关联数据，减少再查一次库 |
+|| `Decimal` 与 JS `number` 混算时常用 `Number(price)` | ✅ 已理解 | Prisma 的 `Decimal` 非原生 number；累加总价时常转换；生产可再了解「分为单位的整数」或全程 Decimal |
+|| 订单模块 HTTP 层（路由注册、`orderController`、与 `app.ts` 挂载） | ⏳ 待完成 | 当前 `order.service` / `order.repository` 已有实践，`/api/orders` 等尚未接线 |
+|| 订单状态更新接口与 Service 完整收尾 | 🔄 部分理解 | `order.service` 内状态流转等方法仍待按 `phase6-order.md` 补全 |
+
+---
+
+## 补充：TypeScript 与 Prisma（Phase 5～6）
+
+### TypeScript 进阶
+
+| 知识点 | 理解状态 | 备注 |
+|--------|--------|------|
+|| `Record<K, V>` 类型 | ✅ 已理解 | 声明"键是 K 类型，值是 V 类型"的对象类型；替代冗长的接口定义，如 `Record<OrderStatus, OrderStatus[]>` |
+|| 联合类型（Union Type）`'A' \| 'B'` | ✅ 已理解 | 用 `\|` 表示"或"，如 `type Status = 'pending' \| 'paid'`；可以是字符串、数字或混合 |
+|| `type` vs `typeof` 区别 | ✅ 已理解 | `type` 声明类型别名；`typeof` 从已有值推断类型；`const` 声明值，`type` 声明类型 |
+|| `z.infer<typeof Schema>` | ✅ 已理解 | 从 Zod Schema 自动推导 TypeScript 类型，避免手动写 interface |
+|| `as const` 类型断言 | ✅ 已理解 | 将对象变为完全只读（readonly），并保留字面量类型；常用于配置对象保证类型精确 |
+
+### Prisma 联表查询与嵌套写入
+
+| 知识点 | 理解状态 | 备注 |
+|--------|--------|------|
+|| `include` 关联查询 | ✅ 已理解 | 返回体中携带关联表数据，如 `include: { product: true }` |
+|| `select` 字段选择 | ✅ 已理解 | 只查询指定字段，如 `select: { id: true, name: true }`，减少数据传输 |
+|| `include` + `select` 组合 | ✅ 已理解 | `include: { product: { select: {...} } }` 关联表只取部分字段 |
+|| 嵌套写入 `create` / `connect` | ✅ 已理解 | 在父模型的 `create`/`update` 的 `data` 里操作子关系：`create` 新建并关联，`connect` 关联已有记录 |
 
 ---
 
@@ -167,4 +206,4 @@
 
 ---
 
-*最后更新：Phase 4 进行中 — 已补充 Prisma CRUD 语法附录*
+*最后更新：2026-03-31 — Phase 5 购物车已学完；Phase 6 订单已掌握事务下单、嵌套 `create`、`include` 返回体、`Decimal` 与必填字段等；HTTP 路由与状态更新接口仍待收尾。*

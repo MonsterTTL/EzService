@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import productRouter from './routes/product.routes';
 import cartRoutes from './routes/cart.routes';
+import orderRouter from './routes/order.routes'
 import { errorHandler } from './middlewares/error.middleware';
 
 //环境初始化
@@ -26,6 +27,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRouter);
 app.use('/api/cart', cartRoutes);
+app.use('/api/order', orderRouter);
 
 //检查服务健康度
 app.get('/health', (req: Request, res: Response) => {

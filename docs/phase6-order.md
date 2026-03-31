@@ -270,10 +270,10 @@ export const orderService = {
           address: dto.address,
           totalAmount,
           status: 'PENDING',
-          items: { create: orderItemsData }
+          item: { create: orderItemsData }
         },
         include: {
-          items: {
+          item: {
             include: {
               product: { select: { id: true, name: true } }
             }

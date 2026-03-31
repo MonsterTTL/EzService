@@ -170,6 +170,6 @@ Prisma Schema 中的关系：
 - ✅ Phase 2: 数据库设计
 - ✅ Phase 3: 用户认证
 - ✅ Phase 4: 商品模块
-- 🔄 Phase 5: 购物车模块（进行中）
-- ⏳ Phase 6: 订单模块
+- ✅ Phase 5: 购物车模块
+- 🔄 Phase 6: 订单模块（Service 层创建订单、事务与嵌套写入已实践；订单路由/控制器与状态接口待收尾）
 - ⏳ Phase 7: 工程化收尾
