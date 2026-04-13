@@ -333,9 +333,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
 ## 完成标志
 
-- [ ] `npm run dev` 能成功启动，无报错
-- [ ] 访问 `http://localhost:3000/health` 返回正确的 JSON
-- [ ] 能理解 `app.use()` 和 `app.get()` 的区别
-- [ ] 理解为什么中间件的 `next()` 至关重要
+- [X] `npm run dev` 能成功启动，无报错
+- [X] 访问 `http://localhost:3000/health` 返回正确的 JSON
+- [X] 能理解 `app.use()` 和 `app.get()` 的区别
+- [X] 理解为什么中间件的 `next()` 至关重要
 
 完成后，进入 [Phase 2 - 数据库设计](./phase2-database.md)。

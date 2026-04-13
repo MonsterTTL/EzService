@@ -505,10 +505,10 @@ A: 再次运行 `npx prisma migrate dev --name 描述这次变更的名字`，Pr
 
 ## 完成标志
 
-- [ ] PostgreSQL 成功启动，可以连接
-- [ ] `npx prisma migrate dev` 成功执行，生成了 `prisma/migrations/` 目录
-- [ ] Prisma Studio 能打开，能看到所有表
-- [ ] `src/test-db.ts` 的 CRUD 练习全部成功
-- [ ] 理解 `priceSnapshot` 存在的原因
+- [X] PostgreSQL 成功启动，可以连接
+- [X] `npx prisma migrate dev` 成功执行，生成了 `prisma/migrations/` 目录
+- [X] Prisma Studio 能打开，能看到所有表
+- [X] `src/test-db.ts` 的 CRUD 练习全部成功
+- [X] 理解 `priceSnapshot` 存在的原因
 
 完成后，进入 [Phase 3 - 用户认证模块](./phase3-auth.md)。

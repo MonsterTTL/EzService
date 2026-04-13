@@ -12,7 +12,7 @@ router.use(authenticate);
 router.get('/', orderController.getMyOrders);
 router.get('/:id', orderController.getOrderById);
 router.post('/', validate(createOrderSchema), orderController.createOrder);
-router.patch('/:id', validate(updateOrderStatusSchema), orderController.updateOrderStatus);
+router.patch('/:id/status', validate(updateOrderStatusSchema), orderController.updateOrderStatus);
 
 export default router;
 
