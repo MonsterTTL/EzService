@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import { cartService } from '../services/cart.service';
-import { success } from 'zod';
 
 export const cartController = {
     //获取购物车
@@ -25,9 +24,9 @@ export const cartController = {
     //更新购物车的商品项
     async updateCartItem(req: Request, res: Response, next: NextFunction) {
         try {
-            const result = cartService?.updateCartItem(
-                req?.user!.userId, 
-                parseInt(req?.params?.productId?.toString() || '0'),
+            const result = await cartService.updateCartItem(
+                req.user!.userId,
+                parseInt(req.params.productId?.toString() || '0'),
                 req.body
             );
             res.json({success: true, data: result});

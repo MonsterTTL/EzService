@@ -56,7 +56,7 @@ export const productController = {
 
     async deleteProduct(req: Request, res: Response, next: NextFunction) {
         try {
-            const product = productService.deleteProduct(parseInt(req.params.id as string));
+            const product = await productService.deleteProduct(parseInt(req.params.id as string));
             res.json({ success: true, data: null });
         } catch (err) {
             next(err);

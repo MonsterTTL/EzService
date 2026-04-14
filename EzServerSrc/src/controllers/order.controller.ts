@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { orderService } from '../services/order.service';
 import { OrderStatus } from '@prisma/client';
-import { success } from 'zod';
 
 export const orderController = {
     async getMyOrders(req: Request, res: Response, next: NextFunction) {

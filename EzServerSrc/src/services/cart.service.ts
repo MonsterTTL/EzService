@@ -62,7 +62,7 @@ export const cartService = {
     //更新购物车
     async updateCartItem(userId: number, productId: number, updataCartItemDto: UpdateCartItemDto) {
         const cart = await cartRepository.getOrCreateCart(userId);
-        const cartItem = await cartRepository.getCartItem(userId, productId);
+        const cartItem = await cartRepository.getCartItem(cart.id, productId);
         
         if (!cartItem) {
             throw new AppError('购物车中没有该商品', 404, 'ITEM_NOT_FOUND');
@@ -72,23 +72,23 @@ export const cartService = {
             await cartRepository.removeCartItem(cart.id, productId);
         }
         //更新数量
-        cartRepository.setCartItemQuantity(cart.id, productId, updataCartItemDto.quantity);
+        await cartRepository.setCartItemQuantity(cart.id, productId, updataCartItemDto.quantity);
     },
     //从购物车里移除商品
     async removeFromCart(userId: number, productId: number) {
         const cart = await cartRepository.getOrCreateCart(userId);
-        const cartItem = await cartRepository.getCartItem(userId, productId);
+        const cartItem = await cartRepository.getCartItem(cart.id, productId);
 
         if (!cartItem) {
             throw new AppError('购物车中没有该商品', 404, 'ITEM_NOT_FOUND');
         }
 
-        cartRepository.removeCartItem(cart.id, productId);
+        await cartRepository.removeCartItem(cart.id, productId);
     },
     //清空购物车
     async clearCart(userId: number) {
         const cart = await cartRepository.getOrCreateCart(userId);
-        cartRepository.clearCart(cart.id);
+        await cartRepository.clearCart(cart.id);
     }
 
 
