@@ -7,7 +7,7 @@ import authRoutes from './routes/auth.routes';
 import productRouter from './routes/product.routes';
 import cartRoutes from './routes/cart.routes';
 import orderRouter from './routes/order.routes'
-import { errorHandler } from './middlewares/error.middleware';
+import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 //环境初始化
 dotenv.config();
@@ -38,6 +38,7 @@ app.get('/health', (req: Request, res: Response) => {
     });
 });
 
+app.use(notFoundHandler);
 //错误处理路由
 app.use(errorHandler);
 

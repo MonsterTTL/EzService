@@ -93,6 +93,7 @@
 || 工厂函数 vs 导出实例 | ✅ 已理解 | 导出值 → 单例；导出函数 → 每次调用新实例；Next.js 热重载场景需要工厂函数+globalThis 防止连接数耗尽 |
 || PrismaClient 单例的状态隔离 | ✅ 已理解 | 普通查询无状态污染，各查询从连接池独立取连接；`$transaction(tx => {})` 的 `tx` 是独立作用域，事务结束后销毁 |
 || `prisma migrate dev` 执行迁移 | 🔄 部分理解 | 命令跑通了；原理是对比 Schema diff 生成 SQL 文件并执行，同时自动触发 `generate` |
+|| Prisma 常见错误码（`P2002`、`P2025` 等） | ✅ 已理解 | `P2002`=唯一约束冲突（如邮箱重复），可用 `err.meta?.target` 拿到冲突字段；`P2025`=记录不存在 |
 || `prisma generate` 是什么，什么时候单独跑 | ✅ 已理解 | 读取 schema.prisma 生成 TS 类型到 `node_modules/.prisma/client/`；migrate 中途失败时需要手动单独运行 |
 || `generator client` 的 `output` 选项陷阱 | ✅ 已理解 | 设置 `output` 会把 Client 生成到自定义路径，但 `import from '@prisma/client'` 找默认路径，导致 `did not initialize` 报错；`prisma-client-js` 不要设置 `output` |
 || `ts-node` 是什么 | ✅ 已理解 | 在内存里动态编译 TS 并直接运行，不生成 `.js` 文件；省去 `tsc → node` 两步；适合执行一次性脚本 |
@@ -181,7 +182,7 @@
 
 | 知识点 | 理解状态 | 备注 |
 |--------|--------|------|
-|| 全局错误处理中间件设计 | ❓ 待深入 | |
+|| 全局错误处理中间件设计 | ✅ 已理解 | 按错误类型分层处理：`AppError` → `ZodError` → `PrismaClientKnownRequestError` → 未知错误；生产环境隐藏 stack trace |
 || Morgan 日志中间件 | ❓ 待深入 | |
 || Swagger / OpenAPI 文档生成 | ❓ 待深入 | |
 || `.env` 环境变量类型安全封装 | ❓ 待深入 | |
@@ -206,4 +207,4 @@
 
 ---
 
-*最后更新：2026-03-31 — Phase 5 购物车已学完；Phase 6 订单已掌握事务下单、嵌套 `create`、`include` 返回体、`Decimal` 与必填字段等；HTTP 路由与状态更新接口仍待收尾。*
+*最后更新：2026-04-15 — 梳理了项目当前结构及多处代码问题；学习了 Prisma 错误码体系与全局错误处理中间件的分层设计，理解了 `P2002`、`P2025` 的识别与转换逻辑。*
