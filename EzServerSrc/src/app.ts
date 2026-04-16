@@ -9,6 +9,8 @@ import cartRoutes from './routes/cart.routes';
 import orderRouter from './routes/order.routes'
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 import morgan from 'morgan';
+import fs from 'fs';
+import https from 'https';
 //swagger
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './utils/swagger';
@@ -24,7 +26,7 @@ app.use(morgan(morganFormater));
 
 if (process.env.NODE_ENV !== 'prod') {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-    console.log(`📚 API 文档: http://localhost:${PORT}/api-docs`);
+    console.log(`📚 API 文档: https://localhost:${PORT}/api-docs`);
 }
 
 //配置中间件
@@ -57,9 +59,19 @@ app.use(errorHandler);
 
 //启动服务器
 //开始监听
-app.listen(PORT, () => {
-    console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    console.log(`📋 Health check: http://localhost:${PORT}/health`);
+// app.listen(PORT, () => {
+//     console.log(`🚀 Server is running on http://localhost:${PORT}`);
+//     console.log(`📋 Health check: http://localhost:${PORT}/health`);
+// });
+
+const httpsOptions = {
+    key: fs.readFileSync('localhost+2-key.pem'),
+    cert: fs.readFileSync('localhost+2.pem'),
+};
+
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`🚀 Server is running on https://localhost:${PORT}`);
+  console.log(`📋 Health check: https://localhost:${PORT}/health`);
 });
 
 export default app;

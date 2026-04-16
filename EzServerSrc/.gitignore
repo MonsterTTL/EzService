@@ -5,3 +5,7 @@ uploads/
 *.js.map
 
 /src/generated/prisma
+
+# HTTPS 本地证书
+*.pem
+*.key

@@ -509,3 +509,63 @@ HTTP 请求
 ### 部署
 - **Docker 容器化**：写 Dockerfile，用 docker-compose 启动整个服务
 - **CI/CD**：用 GitHub Actions 实现自动化测试和部署
+
+### 本地 HTTPS 开发（可选）
+
+如果你在本地集成 Swagger 后发现它默认尝试用 `https://localhost:3000` 发送请求（或出于其他原因想让本地开发跑在 HTTPS 上），可以通过 `mkcert` 生成受信任的本地证书，然后让 Express 启动 HTTPS 服务。
+
+#### 1. 安装 mkcert 并创建本地 CA
+
+```bash
+brew install mkcert
+mkcert -install
+```
+
+#### 2. 生成本地证书
+
+在项目根目录（如 `EzServerSrc/`）执行：
+
+```bash
+mkcert localhost 127.0.0.1 ::1
+```
+
+这会生成类似 `localhost+2.pem`（证书）和 `localhost+2-key.pem`（私钥）两个文件。
+
+#### 3. 修改 `src/app.ts` 启动 HTTPS
+
+```typescript
+import https from 'https';
+import fs from 'fs';
+
+// ...其他 import 不变
+
+const httpsOptions = {
+  key: fs.readFileSync('localhost+2-key.pem'),
+  cert: fs.readFileSync('localhost+2.pem'),
+};
+
+https.createServer(httpsOptions, app).listen(PORT, () => {
+  console.log(`🚀 Server is running on https://localhost:${PORT}`);
+  console.log(`📋 Health check: https://localhost:${PORT}/health`);
+});
+```
+
+> **注意**：如果仍然保留 HTTP 的 `app.listen()`，需要把它删掉或注释掉，避免同时监听两个端口。
+
+#### 4. 更新 Swagger 配置
+
+把 `src/utils/swagger.ts` 里的 `servers.url` 改为：
+
+```typescript
+servers: [
+  { url: 'https://localhost:3000', description: '本地开发环境' }
+]
+```
+
+#### 5. 重启服务
+
+```bash
+npm run dev
+```
+
+此时访问 `https://localhost:3000/api-docs`，浏览器不会报红字证书警告，Swagger 的 "Try it out" 也能正常通过 HTTPS 发送请求。
