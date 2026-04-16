@@ -8,11 +8,24 @@ import productRouter from './routes/product.routes';
 import cartRoutes from './routes/cart.routes';
 import orderRouter from './routes/order.routes'
 import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
+import morgan from 'morgan';
+//swagger
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './utils/swagger';
+
 
 //环境初始化
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
+//日志格式
+const morganFormater = process.env.NODE_ENV === 'prod' ? 'combined' : 'dev';
+app.use(morgan(morganFormater));
+
+if (process.env.NODE_ENV !== 'prod') {
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    console.log(`📚 API 文档: http://localhost:${PORT}/api-docs`);
+}
 
 //配置中间件
 //HTTP请求头
